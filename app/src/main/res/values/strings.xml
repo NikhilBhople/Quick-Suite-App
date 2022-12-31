@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Quick Suite App</string>
+
+    <string name="btn_remove_from_watch_list">REMOVE FROM WATCHLIST</string>
+    <string name="btn_add_to_watch_list">+ ADD TO WATCHLIST</string>
+    <string name="btn_watch_trailer">WATCH TRAILER</string>
+
+    <string name="txt_rating_out_of">/10</string>
+    <string name="txt_details">Details</string>
+    <string name="txt_genre">Genre</string>
+    <string name="txt_released_date">Released Date</string>
+    <string name="txt_movies">Movies</string>
+    <string name="txt_on_my_watch_list">ON MY WATCHLIST</string>
+    <string name="movie">Movie</string>
+    <string name="txt_title">Title</string>
+    <string name="txt_release_date">Released Date</string>
+    <string name="txt_sort">Sort</string>
+</resources>
