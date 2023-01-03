@@ -47,7 +47,7 @@ class MovieRepositoryImpl @Inject constructor(
 
     override suspend fun updateMovieWatchList(movieId: Int) {
         coroutineScope {
-            launch {
+            launch(ioDispatcher) {
                 val old = localDataSource.getMovieDetails(movieId)
                 val new = old.copy(isAddedToWatchList = old.isAddedToWatchList.not())
                 localDataSource.updateMovieWatchList(new)
@@ -57,7 +57,7 @@ class MovieRepositoryImpl @Inject constructor(
 
     // We can specify the condition when to fetch remote API depending on app requirement
     override suspend fun loadJsonValuesToDatabase() {
-        withContext(ioDispatcher) {
+        withContext(ioDispatcher) { // we can also use withContext
             coroutineScope {
                 launch {
                     if (localDataSource.count() == 0) {
