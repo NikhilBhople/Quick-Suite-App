@@ -26,5 +26,5 @@ interface MovieDao {
     suspend fun count(): Int
 
     @Update
-    fun updateMovieWatchList(movieDetails: MovieDetails)
+    fun updateMovieWatchList(movieDetails: MovieDetails): Int //Should return 1 when success.
 }
