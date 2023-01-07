@@ -2,9 +2,7 @@ package nikhil.bhople.quicksuiteapp.data.repository
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import nikhil.bhople.quicksuiteapp.data.common.Constants.EMPTY_STRING
@@ -27,11 +25,12 @@ class MovieRepositoryImpl @Inject constructor(
     private val ioDispatcher: CoroutineDispatcher
 ) : MovieRepository {
 
-    override fun getMovieList(): Flow<Resource<List<Movie>>> {
-        return try {
-            localDataSource.getMovieList().map { Resource.Success(it.map { it.toMovie() }) }
+    override fun getMovieList(): Flow<Resource<List<Movie>>> = flow {
+        loadJsonValuesToDatabase()
+        try {
+            emitAll(localDataSource.getMovieList().map { Resource.Success(it.map { it.toMovie() }) })
         } catch (e: Exception) {
-            flowOf(Resource.Failure(e.localizedMessage ?: EMPTY_STRING))
+            emit(Resource.Failure(e.localizedMessage ?: EMPTY_STRING))
         }
     }
 

@@ -3,6 +3,8 @@ package nikhil.bhople.quicksuiteapp.data.repository
 import com.google.gson.Gson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.runBlocking
+import nikhil.bhople.quicksuiteapp.data.common.Constants
 import nikhil.bhople.quicksuiteapp.data.common.Resource
 import nikhil.bhople.quicksuiteapp.data.data_source.local.entity.MovieDetails
 import nikhil.bhople.quicksuiteapp.data.data_source.local.entity.toMovie
@@ -14,9 +16,17 @@ import nikhil.bhople.quicksuiteapp.domain.repository.MovieRepository
 class FakeMovieRepositoryImpl : MovieRepository {
 
     private val movieList = mutableListOf<MovieDetails>()
+    private var shouldTestHttpException = false
+    private var shouldTestIOException = false
 
-    override fun getMovieList(): Flow<Resource<List<Movie>>> {
-        return flow { emit(Resource.Success(movieList.map { it.toMovie() })) }
+    fun testIOException() = run { shouldTestIOException = true }
+    fun testHttpException() = run { shouldTestHttpException = true }
+
+    override fun getMovieList(): Flow<Resource<List<Movie>>> = flow {
+        loadJsonValuesToDatabase()
+        if (shouldTestIOException) emit(Resource.Failure(Constants.INTERNET_CONNECTION_MSG))
+        else if (shouldTestHttpException) emit(Resource.Failure(Constants.HTTP_ERROR_MSG))
+        else emit(Resource.Success(movieList.map { it.toMovie() }))
     }
 
     override fun getMovieDetailsStream(movieId: Int): Flow<Resource<MovieDetails>> {
@@ -30,16 +40,22 @@ class FakeMovieRepositoryImpl : MovieRepository {
 
     override suspend fun updateMovieWatchList(movieId: Int) {
         movieList.forEachIndexed { index, movieDetails ->
-            if (movieDetails.id == movieId){
-                movieList[index] = movieDetails.copy(isAddedToWatchList = movieDetails.isAddedToWatchList.not())
+            if (movieDetails.id == movieId) {
+                movieList[index] =
+                    movieDetails.copy(isAddedToWatchList = movieDetails.isAddedToWatchList.not())
                 return
             }
         }
     }
 
     override suspend fun loadJsonValuesToDatabase() {
-        val movieListFromJson = Gson().fromJson(jsonString, Array<MovieDto>::class.java).map { it.toMovieDetails() }
-        movieList.addAll(movieListFromJson)
+        runBlocking {
+            if (movieList.isEmpty()) {
+                val movieListFromJson = Gson().fromJson(jsonString, Array<MovieDto>::class.java)
+                    .map { it.toMovieDetails() }
+                movieList.addAll(movieListFromJson)
+            }
+        }
     }
 
 

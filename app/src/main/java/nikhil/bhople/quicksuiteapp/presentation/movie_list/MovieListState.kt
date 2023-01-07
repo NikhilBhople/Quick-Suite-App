@@ -5,6 +5,6 @@ import nikhil.bhople.quicksuiteapp.domain.model.Movie
 
 data class MovieListState(
     val data: List<Movie> = emptyList(),
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = false,
     val errorMessage: String = Constants.EMPTY_STRING
 )
