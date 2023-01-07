@@ -9,7 +9,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import nikhil.bhople.quicksuiteapp.data.common.Constants.EMPTY_STRING
 import nikhil.bhople.quicksuiteapp.data.common.Resource
-import nikhil.bhople.quicksuiteapp.domain.usecase.movie_list.GetJsonDataUseCase
 import nikhil.bhople.quicksuiteapp.domain.usecase.movie_list.GetMovieListUseCase
 import nikhil.bhople.quicksuiteapp.domain.usecase.movie_list.Menu
 import nikhil.bhople.quicksuiteapp.domain.usecase.movie_list.SortMovieListUseCase
@@ -18,8 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MovieListViewModel @Inject constructor(
     private val getMovieListUseCase: GetMovieListUseCase,
-    private val sortMovieListUseCase: SortMovieListUseCase,
-    private val getJsonDataUseCase: GetJsonDataUseCase
+    private val sortMovieListUseCase: SortMovieListUseCase
 ) : ViewModel() {
     private val _state = mutableStateOf(MovieListState())
     val state = _state
@@ -30,14 +28,13 @@ class MovieListViewModel @Inject constructor(
 
     fun getMovieList() {
         viewModelScope.launch {
-            getJsonDataUseCase()
             getMovieListUseCase().collect { result ->
                 when (result) {
                     is Resource.Failure -> _state.value =
                         MovieListState(errorMessage = result.message ?: EMPTY_STRING)
                     is Resource.Loading -> _state.value = MovieListState(isLoading = true)
                     is Resource.Success -> _state.value =
-                        MovieListState(data = result.data ?: emptyList(), isLoading = false)
+                        MovieListState(data = result.data ?: emptyList())
                 }
             }
         }

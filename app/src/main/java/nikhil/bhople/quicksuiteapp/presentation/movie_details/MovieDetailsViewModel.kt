@@ -1,5 +1,6 @@
 package nikhil.bhople.quicksuiteapp.presentation.movie_details
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -22,17 +23,19 @@ class MovieDetailsViewModel @Inject constructor(
     private val updateWatchListUseCase: UpdateWatchListUseCase
 ) : ViewModel() {
     private val _state = mutableStateOf(MovieDetailState())
+    @VisibleForTesting var requestedMovieIdDetails: Int? = null
     val state = _state
 
     init {
         savedStateHandle.get<String>(Constants.PARAMS_MOVIE_ID)?.let { movieId ->
-            _state.value = _state.value.copy(movieId = movieId.toInt())
+            requestedMovieIdDetails = movieId.toInt()
             getMovieDetails()
         }
     }
 
-    private fun getMovieDetails() {
-        _state.value.movieId?.let { movieId ->
+    @VisibleForTesting
+    fun getMovieDetails() {
+        requestedMovieIdDetails?.let { movieId ->
             getMovieDetailsUseCase(movieId).onEach { response ->
                 when (response) {
                     is Resource.Failure -> _state.value =
@@ -45,9 +48,9 @@ class MovieDetailsViewModel @Inject constructor(
     }
 
     fun handleTrailerClick(trailerLink: String) {
-      /* You can handle the way you want
-         Either you can play trailer inside app
-         or send open it in YouTube app   */
+        /* You can handle the way you want
+           Either you can play trailer inside app
+           or send open it in YouTube app   */
     }
 
     fun updateAddToWatchList(movieId: Int) {
